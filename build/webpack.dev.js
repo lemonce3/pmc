@@ -6,14 +6,16 @@ const merge = require('webpack-merge');
 module.exports = merge(webpackBase, {
 	mode: 'development',
 	devtool: 'inline-source-map',
+	entry: {
+		bundle: [
+			path.resolve('test/debug.js'),
+		]
+	},
 	devServer: {
 		port: config.dev.port,
 		host: '0.0.0.0',
 		hot: false,
-		inline: false,
-		proxy: {
-			'/api': config.observer.url
-		}
+		inline: false
 	},
 	plugins: [
 		new HtmlWebpackPlugin({

@@ -13,4 +13,12 @@ exports.postMessage = function postMessage(source, datagram) {
 	setTimeout(() => source.postMessage(datagramString, '*'), 0);
 };
 
+exports.isPlainObject = function isPlainObject(object) {
+	if (typeof object === 'object' && object.constructor === Object) {
+		return true;
+	}
+
+	return false;
+}
+
 exports.Promise = window.Promise || require('promise-polyfill/lib');

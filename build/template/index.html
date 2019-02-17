@@ -11,16 +11,5 @@
 	<button onclick="openWindow()">open</button>
 	<p>Debugging ROOT</p>
 	<iframe src="<%=frameURL%>" width="800" height="600"></iframe>
-	<script>
-	function openWindow() {
-		var win = window.win = window.open('/', '', 'dialog');
-		console.log(1111)
-		// setTimeout(() => win.close(), 5000);
-	}
-	
-	document.querySelector('input').onfocus = function () {
-		console.log(111111);
-	};
-	</script>
 </body>
 </html>

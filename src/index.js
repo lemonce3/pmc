@@ -1,124 +1,100 @@
 const { addEventListener, Promise, postMessage } = require('./utils');
+const Datagram = require('./diagram');
 
 const DEFAULT_REQUEST_TIMEOUT = 30000;
-const establishedStore = {};
-const channelRegistry = {
-	'$established.resolve'(event) {
-		const datagram = PMCFilter(event);
-				
-		if (!datagram || datagram.status === undefined || datagram.id !== id) {
-			return;
-		}
+const established = window.e = {};
+const channelRegistry = window.c = {};
+
+function resolveEstablished(id, response, statusCode) {
+	const connection = established[id];
+
+	if (connection) {
+		const { resolve, reject, timeout, datagram } = connection;
+	
+		datagram.setResponse(response);
+		datagram.setStatus(statusCode);
 		
-		if (datagram.status !== 0) {
-			return reject(new Error(datagram.data));
-		}
-		
-		resolve(datagram);
-		clearTimeout(watcher);
+		statusCode === 0 ? resolve(datagram) : reject(datagram);
+	
+		delete established[id];
+		clearTimeout(timeout);
 	}
-};
-
-let requestCounter = 0;
-
-function isDatagram(datagramString) {
-	if (typeof datagramString !== 'string') {
-		return false;
-	}
-
-	try {
-		const datagram = JSON.parse(datagramString);
-
-		return datagram.protocol !== 'pmc';
-	} catch (error) {
-		return false;
-	}
-}
-
-function establish(id, timeout) {
-	establishedStore[id] = new Promise((resolve, reject) => {
-		setTimeout(() => {
-			delete establishedStore[id];
-			reject(new Error('PMC connection reset.'));
-		}, timeout);
-	});
-}
-
-function RequestDatagram(channel, data) {
-	return {
-		id: requestCounter++,
-		channel,
-		data,
-		protocol: 'pmc'
-	};
-}
-
-function ResponseDatagram(id, data, status = 0) {
-	return {
-		id,
-		channel: '$established.resolve',
-		data,
-		protocol: 'pmc',
-		status
-	};
-}
-
-function parseDatagram(datagramString) {
-	return JSON.parse(datagramString);
 }
 
 addEventListener(window, 'message', function (event) {
-	if (!isDatagram(event.data)) {
+	if (typeof event.data !== 'string') {
 		return;
 	}
-	
-	const { channel, data, id } = parseDatagram(event.data);
-	const { source } = event;
-	const handler = channelRegistry[channel];
 
-	if (!handler) {
-		postMessage(source, ResponseDatagram(id, 'Unregistered handler', 1));
-	} else {
-		new Promise((resolve, reject) => {
-			try {
-				resolve(handler(data, source));
-			} catch (error) {
-				reject(error);
-			}
-		}).then(function (data) {
-			postMessage(source, ResponseDatagram(id, data));
-		}, function (error) {
-			postMessage(source, ResponseDatagram(id, error.message, 128));
-		});
+	let dataObject;
+
+	try {
+		dataObject = JSON.parse(event.data);
+
+		if (dataObject.protocol !== 'pmc') {
+			return;
+		} 
+	} catch (error) {
+		return;
 	}
 
+	const source = event.source;
+	const { id, request, response, channel, status } = dataObject;
+	
+	if (status !== 1) {
+		resolveEstablished(id, response, status);
+	} else {
+		const handler = channelRegistry[channel];
+		const datagram = Datagram.from(dataObject);
+	
+		new Promise((resolve, reject) => {
+			if (!handler) {
+				reject({ code: 3, data: 'Unregistered handler' });
+			}
+
+			try {
+				resolve(handler(request, source));
+			} catch (error) {
+				reject({ code: 128, data: error.message });
+			}
+		}).then(function (data) {
+			datagram.setResponse(data);
+			datagram.setStatus(0);
+		}, function ({ code, data }) {
+			datagram.setResponse(data);
+			datagram.setStatus(code);
+		}).then(() => {
+			postMessage(source, datagram.toJSON());
+		});
+	}
 });
 
 exports.on = function addChannel(name, handler) {
 	channelRegistry[name] = handler;
 };
 
-exports.once = function addOnceChannel(name, handler) {
-	channelRegistry[name] = function handlerWrap(...args) {
-		delete channelRegistry[name];
-
-		return handler(...args);
-	};
-};
-
 exports.off = function removeChannel(name) {
 	delete channelRegistry[name];
 };
 
-exports.request = function requestPMCServer(origin, channel, data, {
+exports.request = function requestPMCServer(source, channel, data, {
 	timeout = DEFAULT_REQUEST_TIMEOUT
 } = {}) {
-	try {
-		const datagram = RequestDatagram(channel, data);
+	const datagram = Datagram.create({ channel, request: data });
+	const promise = new Promise((resolve, reject) => {
+		const id = datagram.id;
 
-		postMessage(origin, datagram);
-		establish(datagram.id, timeout);
-	} catch (error) {
-		throw new Error('Request data can NOT be JSON.stringify.');
-	}
+		established[id] = {
+			resolve, reject, datagram,
+			timeout: setTimeout(() => {
+				datagram.setStatus(4);
+				delete established[id];
+				reject(datagram);
+			}, timeout)
+		};
+	});
+	
+	postMessage(source, datagram.toJSON());
+
+	return promise;
 };

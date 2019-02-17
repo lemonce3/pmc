@@ -1,5 +1,7 @@
 exports.codes = {
-	'0': 'OK.',
-	'1': 'Channel not registered.',
-	'128': 'Internal error.'
+	'0': 'OK',
+	'1': 'Connecting',
+	'3': 'Channel not registered',
+	'4': 'Timeout',
+	'128': 'Internal error'
 };
