@@ -6,6 +6,28 @@ const merge = require('webpack-merge');
 module.exports = merge(webpackBase, {
 	mode: 'development',
 	devtool: 'inline-source-map',
+	entry: {
+		bundle: [
+			path.resolve('test/index.js'),
+		]
+	},
+	module: {
+		rules: [
+			{
+				test: /\.css$/,
+				use: ['style-loader', 'css-loader']
+			},
+			{
+				test: /\.js$/,
+				include: [
+					/babel-polyfill/
+				],
+				use: [
+					'babel-loader'
+				],
+			}
+		]
+	},
 	devServer: {
 		port: config.dev.port,
 		host: '0.0.0.0',
@@ -21,5 +43,8 @@ module.exports = merge(webpackBase, {
 			},
 			inject: 'head'
 		}),
-	]
+	],
+	node: {
+		Buffer: true,
+	}
 });
