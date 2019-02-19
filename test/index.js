@@ -6,23 +6,31 @@ require('./test.css');
 require('mocha/mocha');
 // require('babel-polyfill');
 const utils = require('../src/utils');
+const {on, request} = require('../src/index');
 
 console.error = function (msg) {
 	console.log(msg, 1)
 }
 
 if (window.top === window.self) {
+	mocha.setup('bdd');
+	mocha.timeout(40000);
+
+	require('./unit');
+
 	utils.addEventListener(window, 'load', function () {
-		mocha.setup('bdd');
-
-		describe('mocha test', function () {
-			console.log('ok');
-
-			it('pendding case', function () {
-				return true;
-			});
-		});
-	
 		mocha.run();
 	});
+
+	window.f = [];
+
+	function init(request, source) {
+		f.push(source);
+	}
+
+	on('frame.init', init);
+} else {
+	require('./frame-channel');
+
+	request(top, 'frame.init');
 }
