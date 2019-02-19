@@ -9,8 +9,6 @@ on('test.abnormal.custom', function () {
     throw new Error('throw an error.');
 });
 
-on('test.abnormal.notFunction', 'test');
-
 on('test.timeout', function () {
     return new Promise(function (resolve, reject) {
         setTimeout(function () {
@@ -20,5 +18,5 @@ on('test.timeout', function () {
 });
 
 on('test.syncIterative', function () {
-
+    return 'iterative-call';
 });

@@ -13,12 +13,42 @@ exports.postMessage = function postMessage(source, datagram) {
 	setTimeout(() => source.postMessage(datagramString, '*'), 0);
 };
 
-exports.isPlainObject = function isPlainObject(object) {
-	if (typeof object === 'object' && object.constructor === Object) {
-		return true;
+exports.Promise = window.Promise || require('promise-polyfill/lib');
+
+let requestCounter = 0;
+
+exports.createDatagram = function createDatagram({
+	channel,
+	id = requestCounter++,
+	request = undefined,
+	response = undefined,
+	status = 1
+}) {
+	return { id, channel, status, request, response,
+		protocol: 'pmc'
+	};
+};
+
+const codes = {
+	'0': 'OK',
+	'1': 'Connecting',
+	'3': 'Channel not registered',
+	'4': 'Timeout',
+	'128': 'Internal error'
+};
+
+exports.PMCError = function PMCError(code, context, channel, message) {
+	const error = new Error(`${codes[code]} (${context})[${channel}]`);
+
+	if (message) {
+		error.message += ` => ${message}`;
 	}
 
-	return false;
+	error.name = 'PMCError';
+
+	return error;
 }
 
-exports.Promise = window.Promise || require('promise-polyfill/lib');
+exports.isFunction = function (value) {
+	return typeof value === 'function';
+}
