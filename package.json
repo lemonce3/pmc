@@ -1,6 +1,6 @@
 {
-  "name": "@lc3/pmc",
-  "version": "1.0.0",
+  "name": "@lemonce3/pmc",
+  "version": "0.1.0",
   "description": "Post message conmunication and Compatible with IE8",
   "main": "index.js",
   "scripts": {
@@ -39,6 +39,9 @@
     "webpack-dev-server": "^3.1.8",
     "webpack-merge": "^4.2.1"
   },
+  "files": [
+    "src"
+  ],
   "bugs": {
     "url": "https://github.com/lemonce3/pmc/issues"
   },
