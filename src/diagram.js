@@ -1,5 +1,3 @@
-const utils = require('./utils');
-
 class Datagram {
 	constructor({ id, channel, request, response, status }) {
 		this.id = id;
@@ -10,19 +8,11 @@ class Datagram {
 	}
 
 	setRequest(data) {
-		if (typeof data !== 'object' || utils.isPlainObject(data)) {
-			return this.request = data;
-		}
-
-		throw new Error('Data can NOT be json stringify.');
+		return this.request = data;
 	}
 
 	setResponse(data) {
-		if (typeof data !== 'object' || utils.isPlainObject(data)) {
-			return this.response = data;
-		}
-
-		throw new Error('Data can NOT be json stringify.');
+		return this.response = data;
 	}
 
 	setStatus(code) {

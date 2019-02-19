@@ -1,5 +1,7 @@
 const { addEventListener, Promise, postMessage } = require('./utils');
 const Datagram = require('./diagram');
+const { codes } = require('./status');
+const PMCError = require('./error');
 
 const DEFAULT_REQUEST_TIMEOUT = 30000;
 const established = window.e = {};
@@ -11,10 +13,9 @@ function resolveEstablished(id, response, statusCode) {
 	if (connection) {
 		const { resolve, reject, timeout, datagram } = connection;
 	
-		datagram.setResponse(response);
-		datagram.setStatus(statusCode);
-		
-		statusCode === 0 ? resolve(datagram) : reject(datagram);
+		statusCode === 0 ?
+			resolve(datagram.response) :
+			reject(new PMCError(statusCode, response.context, datagram.channel, response.message));
 	
 		delete established[id];
 		clearTimeout(timeout);
@@ -49,13 +50,19 @@ addEventListener(window, 'message', function (event) {
 	
 		new Promise((resolve, reject) => {
 			if (!handler) {
-				reject({ code: 3, data: 'Unregistered handler' });
+				reject({ code: 3, data: codes[3] });
 			}
 
 			try {
 				resolve(handler(request, source));
 			} catch (error) {
-				reject({ code: 128, data: error.message });
+				reject({
+					code: 128,
+					data: {
+						context: location.href,
+						message: error.message || JSON.stringify(error),
+					}
+				});
 			}
 		}).then(function (data) {
 			datagram.setResponse(data);

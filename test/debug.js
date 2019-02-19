@@ -13,8 +13,10 @@ if (window.top === window.self) {
 }
 
 pmc.on('frame.test', datagram => {
-	pmc.request(window.top, 'top.test', Math.random());
-	
+	console.log(datagram);
+	// throw new Error('test')
+	// pmc.request(window.top, 'top.test', Math.random());
+	window.addEventListener.bind.call.d.d;
 	return 'frame ok: ' + location.href;
 });
 
