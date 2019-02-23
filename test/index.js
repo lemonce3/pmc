@@ -8,10 +8,6 @@ require('mocha/mocha');
 const utils = require('../src/utils');
 const {on, request} = require('../src/index');
 
-console.error = function (msg) {
-	console.log(msg, 1)
-}
-
 if (window.top === window.self) {
 	mocha.setup('bdd');
 	mocha.timeout(40000);

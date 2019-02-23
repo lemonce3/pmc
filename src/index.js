@@ -1,7 +1,7 @@
 const utils = require('./utils');
 
 const DEFAULT_REQUEST_TIMEOUT = 30000;
-const established = exports.established = {};
+const established = {};
 const channelRegistry = exports.channelRegistry = {};
 
 function resolveEstablished(id, response, statusCode) {

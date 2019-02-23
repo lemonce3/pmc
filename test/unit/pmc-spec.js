@@ -1,4 +1,4 @@
-const {established, channelRegistry, on, off, request} = require('../../src/index');
+const {channelRegistry, on, off, request} = require('../../src/index');
 const assert = require('assert');
 
 describe('pmc test', function () {
