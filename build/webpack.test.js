@@ -20,7 +20,7 @@ module.exports = merge(webpackBase, {
 			{
 				test: /\.js$/,
 				include: [
-					/babel-polyfill/
+					/@babel\/polyfill/
 				],
 				use: [
 					'babel-loader'

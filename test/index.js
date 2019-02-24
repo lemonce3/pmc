@@ -4,7 +4,7 @@ require('js-polyfills/typedarray');
 require('mocha/mocha.css');
 require('./test.css');
 require('mocha/mocha');
-// require('babel-polyfill');
+
 const utils = require('../src/utils');
 const {on, request} = require('../src/index');
 
