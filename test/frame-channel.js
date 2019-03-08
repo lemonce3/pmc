@@ -1,4 +1,4 @@
-const {on} = require('../src/index');
+const {on, request} = require('../src/index');
 const {Promise} = require('../src/utils');
 
 on('test.normal', function () {
@@ -20,3 +20,9 @@ on('test.timeout', function () {
 on('test.syncIterative', function () {
     return 'iterative-call';
 });
+
+window.onbeforeunload = function () {
+    request(top, 'test.unloadPage', 'closed', {
+        async: false
+    });
+}

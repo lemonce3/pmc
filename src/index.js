@@ -83,7 +83,8 @@ exports.off = function removeChannel(name) {
 };
 
 exports.request = function requestPMCServer(source, channel, data, {
-	timeout = DEFAULT_REQUEST_TIMEOUT
+	timeout = DEFAULT_REQUEST_TIMEOUT,
+	async = true
 } = {}) {
 	const datagram = utils.createDatagram({ channel, request: data });
 	const promise = new utils.Promise((resolve, reject) => {
@@ -100,7 +101,7 @@ exports.request = function requestPMCServer(source, channel, data, {
 		};
 	});
 	
-	utils.postMessage(source, datagram);
+	utils.postMessage(source, datagram, async);
 
 	return promise;
 };

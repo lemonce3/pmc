@@ -6,7 +6,6 @@ require('./test.css');
 require('mocha/mocha');
 
 const utils = require('../src/utils');
-const {on, request} = require('../src/index');
 
 if (window.top === window.self) {
 	mocha.setup('bdd');
@@ -18,15 +17,6 @@ if (window.top === window.self) {
 		mocha.run();
 	});
 
-	window.f = [];
-
-	function init(request, source) {
-		f.push(source);
-	}
-
-	on('frame.init', init);
 } else {
 	require('./frame-channel');
-
-	request(top, 'frame.init');
 }

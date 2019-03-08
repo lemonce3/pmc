@@ -5,6 +5,10 @@ const merge = require('webpack-merge');
 
 module.exports = merge(webpackBase, {
 	mode: 'none',
+	output: {
+		filename: 'pmc.min.js',
+		libraryTarget: 'umd'
+	},
 	plugins: [
 		new webpack.DefinePlugin({
 			'process.env.NODE_ENV': JSON.stringify('production')

@@ -29,8 +29,14 @@ describe('pmc test', function () {
     });
 
     describe('method "request" test', function () {
+        let frame;
+        let frameWindow;
         it('calling successfully', function (done) {
-            request(f[0],'test.normal').then(function (data) {
+
+            frame = document.querySelector('iframe');
+            frameWindow = frame.contentWindow;
+
+            request(frameWindow,'test.normal').then(function (data) {
                 assert.deepEqual(data, true);
 
                 done();
@@ -38,7 +44,7 @@ describe('pmc test', function () {
         });
 
         it('calling abnormally', function (done) {
-            request(f[0],'test.abnormal.custom').then(function () {}, function (data) {
+            request(frameWindow,'test.abnormal.custom').then(function () {}, function (data) {
                 assert.throws(function () {
                     throw data;
                 }, 'throw an error.');
@@ -48,7 +54,7 @@ describe('pmc test', function () {
         });
 
         it('method unregistered', function (done) {
-            request(f[0],'test._test_').then(function () {}, function (data) {
+            request(frameWindow,'test._test_').then(function () {}, function (data) {
                 assert.throws(function () {
                     throw data
                 }, 'Channel not registered');
@@ -64,7 +70,7 @@ describe('pmc test', function () {
             new Promise(function (resolve, reject) {
 
                 array.forEach(function () {
-                    request(f[0], 'test.syncIterative').then(function () {
+                    request(frameWindow, 'test.syncIterative').then(function () {
                         if (semaphore < array.length) {
                             semaphore++;
 
@@ -82,11 +88,25 @@ describe('pmc test', function () {
         });
 
         it('calling timeout', function (done) {
-            request(f[0],'test.timeout').then(function () {}, function (data) {
-                assert.equal(data.message, 'Timeout (Unreachable)[test.timeout]')
+            request(frameWindow,'test.timeout', '', {
+                timeout: 1900
+            }).then(function () {}, function (data) {
+                assert.equal(data.message, 'Timeout (Unreachable)[test.timeout]');
 
                 done();
             });
-        }); 
+        });
+
+        it('Synchronous call request method', function (done) {
+            frame.src = 'http://www.baidu.com/';
+    
+            on('test.unloadPage', function (request, source) {
+                if (frameWindow === source) {
+                    assert.equal(request, 'closed');
+    
+                    done();
+                }
+            });
+        });
     });
 });

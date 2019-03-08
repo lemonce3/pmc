@@ -14,7 +14,6 @@ module.exports = function (api) {
 			]
 		],
 		plugins: [
-			'@babel/plugin-transform-runtime',
 			'@babel/plugin-transform-property-literals',
 			'@babel/plugin-transform-member-expression-literals'
 		]

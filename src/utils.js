@@ -1,4 +1,6 @@
 
+const isIE8 = !document.createEvent;
+
 exports.addEventListener = function (element, eventType, listener) {
 	if (element.addEventListener) {
 		element.addEventListener(eventType, listener, false);
@@ -7,10 +9,14 @@ exports.addEventListener = function (element, eventType, listener) {
 	}
 };
 
-exports.postMessage = function postMessage(source, datagram) {
+exports.postMessage = function postMessage(source, datagram, async = true) {
 	const datagramString = JSON.stringify(datagram);
 
-	setTimeout(() => source.postMessage(datagramString, '*'), 0);
+	if (isIE8 && async) {
+		setTimeout(() => source.postMessage(datagramString, '*'), 0);
+	} else {
+		source.postMessage(datagramString, '*');
+	}
 };
 
 exports.Promise = window.Promise || require('promise-polyfill/lib');
